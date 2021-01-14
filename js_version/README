@@ -1,0 +1,18 @@
+What's done
+"""""""""""
+* sorting algorythm
+* possibility to define what metrics should be used for sorting particular properties
+* works for multiple properties and metrics
+* some unit tests for data loaders
+* different data loaders (memory, files, ...)
+* data.txt is sorted in result.txt file
+
+
+What should be done
+"""""""""""""""""""
+there are some TODOS in my code. Most important are:
+* data is loaded from file into memory - for laaaarge files it could be slow and expensive. There should be some kind of generators / iterators used
+* data parser should check for invalid data (corner cases like empty file, duplicated data, more headers than items in row, etc...)
+* structure returned by parser is a pain in the ass in some places..
+* printing methods should be separated from logic (vide hierarchicalSort.js)
+* maybe sortAndPrint should be iterative not recursive - due to memory usage for large files, but I didn't check that
