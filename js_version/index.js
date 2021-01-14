@@ -6,7 +6,11 @@ const dataLoader = new MemoryDataLoader();
 const dataParser = new DataParser(dataLoader);
 
 // hierarchicalSort(dataParser.parse());
-hierarchicalSort(dataParser.parse(), 'other_metrics');
+// hierarchicalSort(dataParser.parse(), 'other_metrics');
+hierarchicalSort(dataParser.parse(), {
+  'property1': 'net_sales',
+  'property0': 'other_metrics'
+});
 
 // TODO notes
 
@@ -17,10 +21,6 @@ hierarchicalSort(dataParser.parse(), 'other_metrics');
 // 3 test memory usage and execution time (42tech loads huge data files probably)
 // should delimiter be configurable?
 
-
-// !!! sort function
-// 2 add configurable metrics
-// 3 (extra) add possibility to configure metric per property
 
 // what about tests
 // add unit tests

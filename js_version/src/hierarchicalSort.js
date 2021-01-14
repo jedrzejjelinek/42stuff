@@ -1,5 +1,5 @@
 var propertyLevelStruct;
-var metricsNameToSortBy;
+var sortMetrics;
 
 // TODO allow to sort by other metrics
 const SORT_METRICS = 'net_sales';
@@ -20,6 +20,11 @@ class Node {
   setChild(node) {
     this.children.push(node);
     node.parent = this;
+  }
+
+  getDeepestPropertyName() {
+    let propertyObj =  this.value.properties[this.value.properties.length - 1];
+    return Object.keys(propertyObj)[0];
   }
 }
 
@@ -114,6 +119,9 @@ function buildTree(data) {
 }
 
 const compareNodes = (nodeA, nodeB) => {
+  let propertyName = nodeA.getDeepestPropertyName();
+  let metricsNameToSortBy = sortMetrics[propertyName] || SORT_METRICS;
+
   let nodeAValue = nodeA.value.metrics[metricsNameToSortBy];
   let nodeBValue = nodeB.value.metrics[metricsNameToSortBy];
 
@@ -144,8 +152,8 @@ const sortAndPrint = (node) => {
   }
 };
 
-function hierarchicalSort(data, metricsName) {
-  metricsNameToSortBy = metricsName || SORT_METRICS;
+function hierarchicalSort(data, sortMetricsConfig) {
+  sortMetrics = sortMetricsConfig || {};
 
   propertyLevelStruct = data.headers.properties.map(() => {return [];});
   propertyLevelStruct.push([]); // add one for the root
