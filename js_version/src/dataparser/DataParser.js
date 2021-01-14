@@ -59,7 +59,7 @@ class DataParser {
           return item;
         }),
         metrics: headers.metrics.reduce((r, metrics, idx) => {
-          r[metrics] = rowData[idx];
+          r[metrics] = parseFloat(rowData[idx]);
           return r;
         }, {})
       };

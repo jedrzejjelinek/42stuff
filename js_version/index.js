@@ -4,7 +4,8 @@ const DataParser = require('./src/dataparser/DataParser');
 const hierarchicalSort = require('./src/hierarchicalSort');
 
 // const dataLoader = new MemoryDataLoader();
-const dataLoader = new FileDataLoader('./data/example.in');
+// const dataLoader = new FileDataLoader('./data/example.in');
+const dataLoader = new FileDataLoader('./data/data.txt');
 const dataParser = new DataParser(dataLoader);
 
 // hierarchicalSort(dataParser.parse());
@@ -12,7 +13,7 @@ const dataParser = new DataParser(dataLoader);
 dataParser.parse().then((data) => {
   hierarchicalSort(data, {
     'property1': 'net_sales',
-    'property0': 'other_metrics'
+    'property0': 'net_sales'
   });
 });
 
