@@ -4,7 +4,7 @@ class MemoryDataLoader extends DataLoader {
   // XXX: could be configurable, but memory data loader is used for example data only
   constructor() {
     super();
-    
+
     // XXX: could be static
     this.EXAMPLE_DATA = [
       'property0|property1|net_sales',

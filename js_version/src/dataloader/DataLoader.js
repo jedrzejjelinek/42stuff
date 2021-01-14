@@ -3,6 +3,7 @@ class DataLoader {
   }
 
   // TODO: maybe generator?
+  // should be async?
   getData() {
     return [];
   }
