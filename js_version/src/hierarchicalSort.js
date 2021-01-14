@@ -34,6 +34,10 @@ function findNodeChildren(level, propertyLevelStruct, node) {
   let children = [];
   let childrenLevel = level + 1;
 
+  if (level === 0) {
+    return propertyLevelStruct[childrenLevel];
+  }
+
   if (childrenLevel >= propertyLevelStruct.length) {
     return children;
   }
@@ -43,7 +47,7 @@ function findNodeChildren(level, propertyLevelStruct, node) {
     // child item is when:
     // - has corresponding properties (first 'level' properties)
     let isChild = true;
-    for (let i = 0; i <= level; i++) {
+    for (let i = 0; i < level; i++) {
       if (JSON.stringify(node.value.properties[i]) != JSON.stringify(item.value.properties[i])) { // TODO hmm structure is still pain in the ass...
         isChild = false;
         break;
@@ -68,7 +72,7 @@ function findNodeParent(level, propertyLevelStruct, node) {
     // parent item is when:
     // - has corresponding properties (first 'parentlevel' properties)
     let isParent = true;
-    for (let i = 0; i <= parentLevel; i++) {
+    for (let i = 0; i < parentLevel; i++) {
       if (JSON.stringify(node.value.properties[i]) != JSON.stringify(item.value.properties[i])) { // TODO hmm structure is still pain in the ass...
         isParent = false;
         break;
@@ -84,40 +88,6 @@ function findNodeParent(level, propertyLevelStruct, node) {
 }
 
 function hierarchicalSort(data) {
-/*
-{
-  headers: {
-    properties: [ 'property0', 'property1' ],
-    metrics: [ 'net_sales' ]
-  },
-  dataset: [
-      {
-      properties: [ { property0: 'bar' }, { property1: '$total' } ],
-      metrics: { net_sales: '-200' }
-    }
-  ]
-}
-*/
-
-  // TODO - how it should work?
-  // iterate through dataset
-  // build a tree
-  // - depth equals number of properties
-  // - for every item in dataset
-  // -- check depth level (number of "$total" in properties)
-  // -- find it's parent
-  // -- connect them
-  // --
-
-  let root = null;
-
-  // kind of cache for new nodes - allows to find a parent when child is earlies on the list in file
-  // const propertyLevelStruct = data.headers.properties.map((property) => {
-  //   // return {
-  //   //   property: property,
-  //   //   data: []
-  //   // }
-  // });
   const propertyLevelStruct = data.headers.properties.map(() => {return [];});
   propertyLevelStruct.push([]); // add one for root
 
@@ -129,9 +99,7 @@ function hierarchicalSort(data) {
     propertyLevelStruct[level].push(node);
 
     // find parent
-    if (level === 0) {
-      root = node;
-    } else {
+    if (level > 0) {
       let parent = findNodeParent(level, propertyLevelStruct, node);
       if (parent) {
         node.setParent(parent);
@@ -145,13 +113,46 @@ function hierarchicalSort(data) {
     });
   }
 
+  const compareNodes = (nodeA, nodeB) => {
+    let nodeAValue = nodeA.value.metrics[SORT_METRICS];
+    let nodeBValue = nodeB.value.metrics[SORT_METRICS];
 
-  // start from root, get children, sort using given metrics and print output
-  // TODO iterate, checking recursively can be memory-usage-heavy
-  for (level = 0; level < propertyLevelStruct.length, level++) {
-    
+    if (nodeAValue > nodeBValue) return -1;
+    if (nodeAValue < nodeBValue) return 1;
+    if (nodeAValue == nodeBValue) return 0;
   }
 
+  const printNode = (node) => {
+    let propertiesString = node.value.properties.map((item) => {
+      return item[Object.keys(item)[0]];
+    }).join('|');
+
+    let metricsString = Object.keys(node.value.metrics).sort().map((key) => {
+      return node.value.metrics[key];
+    }).join('|');
+
+    console.log(propertiesString + '|' + metricsString);
+  };
+
+  // TODO find iterative version
+  const sortAndPrint = (node) => {
+    printNode(node);
+    node.children.sort(compareNodes);
+    for (child of node.children) {
+      sortAndPrint(child);
+    }
+  };
+
+  sortAndPrint(propertyLevelStruct[0][0]); // root
+
+  // for (level = 0; level < propertyLevelStruct.length; level++) {
+  //   for (node of propertyLevelStruct[level]) {
+  //     // sort node children using given metrics
+  //     if (node.children.length) {
+  //       node.children.sort(compareNodes);
+  //     }
+  //   }
+  // }
 
 
 };
