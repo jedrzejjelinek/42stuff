@@ -5,7 +5,8 @@ const hierarchicalSort = require('./src/hierarchicalSort');
 const dataLoader = new MemoryDataLoader();
 const dataParser = new DataParser(dataLoader);
 
-hierarchicalSort(dataParser.parse());
+// hierarchicalSort(dataParser.parse());
+hierarchicalSort(dataParser.parse(), 'other_metrics');
 
 // TODO notes
 
@@ -18,15 +19,8 @@ hierarchicalSort(dataParser.parse());
 
 
 // !!! sort function
-// 1 first: code simplest thing with hardcoded net_sales metric used in sorting
 // 2 add configurable metrics
 // 3 (extra) add possibility to configure metric per property
-
-// display result
-// 1 first: just return value - for testing purposes
-// 2 print on screen
-// 3 save to file
-// ...or maybe just save to file, think that throug
 
 // what about tests
 // add unit tests
@@ -35,5 +29,4 @@ hierarchicalSort(dataParser.parse());
 // what about corner cases? - think that through
 
 // what about performance?
-// fist: dont worry bout the perf, just make working algorythm
 // second: try to optimize - think that through

@@ -1,10 +1,13 @@
+var propertyLevelStruct;
+var metricsNameToSortBy;
+
 // TODO allow to sort by other metrics
 const SORT_METRICS = 'net_sales';
 const TOTAL_SYMBOL = '$total';
 
 class Node {
   constructor(value) {
-    this.value = value; // TODO change that later, don;t know the format now
+    this.value = value; // TODO change that later, don't know the format now
     this.parent = null;
     this.children = [];
   }
@@ -30,7 +33,7 @@ function countTotalFields(propertiesNames, item) {
   }, propertiesNames.length);
 }
 
-function findNodeChildren(level, propertyLevelStruct, node) {
+function findNodeChildren(level, node) {
   let children = [];
   let childrenLevel = level + 1;
 
@@ -62,7 +65,7 @@ function findNodeChildren(level, propertyLevelStruct, node) {
   return children;
 }
 
-function findNodeParent(level, propertyLevelStruct, node) {
+function findNodeParent(level, node) {
   let parentLevel = level - 1;
   for (item of propertyLevelStruct[parentLevel]) {
     if (parentLevel === 0) {
@@ -87,74 +90,70 @@ function findNodeParent(level, propertyLevelStruct, node) {
   return null;
 }
 
-function hierarchicalSort(data) {
-  const propertyLevelStruct = data.headers.properties.map(() => {return [];});
-  propertyLevelStruct.push([]); // add one for root
-
-  // build a tree
+function buildTree(data) {
   for (item of data.dataset) {
     let level = countTotalFields(data.headers.properties, item);
     let node = new Node(item);
 
     propertyLevelStruct[level].push(node);
 
-    // find parent
+    // find parent to fill the structure
     if (level > 0) {
-      let parent = findNodeParent(level, propertyLevelStruct, node);
+      let parent = findNodeParent(level, node);
       if (parent) {
         node.setParent(parent);
       }
     }
 
-    // find children
-    let children = findNodeChildren(level, propertyLevelStruct, node);
+    // find children to fill the structure
+    let children = findNodeChildren(level, node);
     children.forEach((child) => {
       child.setParent(node);
     });
   }
+}
 
-  const compareNodes = (nodeA, nodeB) => {
-    let nodeAValue = nodeA.value.metrics[SORT_METRICS];
-    let nodeBValue = nodeB.value.metrics[SORT_METRICS];
+const compareNodes = (nodeA, nodeB) => {
+  let nodeAValue = nodeA.value.metrics[metricsNameToSortBy];
+  let nodeBValue = nodeB.value.metrics[metricsNameToSortBy];
 
-    if (nodeAValue > nodeBValue) return -1;
-    if (nodeAValue < nodeBValue) return 1;
-    if (nodeAValue == nodeBValue) return 0;
+  if (nodeAValue > nodeBValue) return -1;
+  if (nodeAValue < nodeBValue) return 1;
+  if (nodeAValue == nodeBValue) return 0;
+}
+
+// TODO delimiter should not be here.. and this function too ;)
+const printNode = (node) => {
+  let propertiesString = node.value.properties.map((item) => {
+    return item[Object.keys(item)[0]];
+  }).join('|');
+
+  let metricsString = Object.keys(node.value.metrics).sort().map((key) => {
+    return node.value.metrics[key];
+  }).join('|');
+
+  console.log(propertiesString + '|' + metricsString);
+};
+
+// TODO find iterative version
+const sortAndPrint = (node) => {
+  printNode(node);
+  node.children.sort(compareNodes);
+  for (child of node.children) {
+    sortAndPrint(child);
   }
+};
 
-  const printNode = (node) => {
-    let propertiesString = node.value.properties.map((item) => {
-      return item[Object.keys(item)[0]];
-    }).join('|');
+function hierarchicalSort(data, metricsName) {
+  metricsNameToSortBy = metricsName || SORT_METRICS;
 
-    let metricsString = Object.keys(node.value.metrics).sort().map((key) => {
-      return node.value.metrics[key];
-    }).join('|');
+  propertyLevelStruct = data.headers.properties.map(() => {return [];});
+  propertyLevelStruct.push([]); // add one for the root
 
-    console.log(propertiesString + '|' + metricsString);
-  };
+  buildTree(data);
 
-  // TODO find iterative version
-  const sortAndPrint = (node) => {
-    printNode(node);
-    node.children.sort(compareNodes);
-    for (child of node.children) {
-      sortAndPrint(child);
-    }
-  };
-
-  sortAndPrint(propertyLevelStruct[0][0]); // root
-
-  // for (level = 0; level < propertyLevelStruct.length; level++) {
-  //   for (node of propertyLevelStruct[level]) {
-  //     // sort node children using given metrics
-  //     if (node.children.length) {
-  //       node.children.sort(compareNodes);
-  //     }
-  //   }
-  // }
-
-
+  let root = propertyLevelStruct[0][0];
+  sortAndPrint(root);
 };
 
 module.exports = hierarchicalSort;
