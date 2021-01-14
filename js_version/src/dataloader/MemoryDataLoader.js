@@ -18,7 +18,7 @@ class MemoryDataLoader extends DataLoader {
     ];
   }
 
-  getData() {
+  async getData() {
     return this.EXAMPLE_DATA;
   }
 }

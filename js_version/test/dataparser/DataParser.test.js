@@ -4,29 +4,14 @@ const sinon = require('sinon');
 const DataParser = require('../../src/dataparser/DataParser');
 
 class DummyDataLoader{
-  getData() {}
+  constructor(data) {
+    this.data = data || [];
+  }
+  async getData() {return this.data}
 }
 
 
 describe('DataParser', () => {
-  describe('loading data', () => {
-    let dataLoader, getDataStub;
-
-    beforeEach(() => {
-      dataLoader = new DummyDataLoader();
-      getDataStub = sinon.stub(dataLoader, "getData").returns([]);
-    });
-
-    afterEach(() => {
-      getDataStub.restore();
-    });
-
-    it('should load data during initialization', () => {
-      const dataParser = new DataParser(dataLoader);
-      assert.ok(getDataStub.calledOnce);
-    });
-  });
-
   describe('parsing', () => {
     it('should extract headers', () => {
       const dataLoader = new DummyDataLoader();
@@ -66,11 +51,8 @@ describe('DataParser', () => {
       });
     });
 
-    it('should return properly parsed data', () => {
-      const dataLoader = new DummyDataLoader();
-      const dataParser = new DataParser(dataLoader);
-
-      dataParser.data = [
+    it('should return properly parsed data', async () => {
+      const sampleData = [
         'property0|property1|net_sales',
         'bar|$total|-200',
         'foo|sauce|300',
@@ -80,6 +62,9 @@ describe('DataParser', () => {
         'bar|bro|200',
         'foo|bacon|100'
       ];
+      const dataLoader = new DummyDataLoader(sampleData);
+      const dataParser = new DataParser(dataLoader);
+
 
       const expected = {
         "headers": {
@@ -139,7 +124,7 @@ describe('DataParser', () => {
         ]
       };
 
-      const given = dataParser.parse();
+      const given = await dataParser.parse();
       expect(given).deep.to.equal(expected);
     });
   });

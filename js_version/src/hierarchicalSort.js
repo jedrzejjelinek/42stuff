@@ -28,34 +28,39 @@ const compareNodes = (nodeA, nodeB) => {
 }
 
 // TODO delimiter should not be here.. and this function too ;)
-const printNode = (node) => {
+const printNode = (node, headers) => {
   let propertiesString = node.value.properties.map((item) => {
     return item[Object.keys(item)[0]];
   }).join('|');
 
-  let metricsString = Object.keys(node.value.metrics).sort().map((key) => {
-    return node.value.metrics[key];
+  let metricsString = headers.metrics.map((metricsName) => {
+    return node.value.metrics[metricsName];
   }).join('|');
 
   console.log(propertiesString + '|' + metricsString);
 };
 
 // TODO find iterative version
-const sortAndPrint = (node) => {
-  printNode(node);
+const sortAndPrint = (node, headers) => {
+  printNode(node, headers);
   node.children.sort(compareNodes);
   for (child of node.children) {
-    sortAndPrint(child);
+    sortAndPrint(child, headers);
   }
 };
 
+const printHeader = (data) => {
+  console.log(data.headers.properties.join('|') + '|' + data.headers.metrics.join('|'))
+};
 
 function hierarchicalSort(data, sortMetricsConfig) {
   sortMetrics = sortMetricsConfig || {};
 
   const tree = new Tree(data, countTotalFields);
   let root = tree.build();
-  sortAndPrint(root);
+
+  printHeader(data);
+  sortAndPrint(root, data.headers);
 };
 
 module.exports = hierarchicalSort;

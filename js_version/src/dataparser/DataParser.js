@@ -8,7 +8,6 @@ class DataParser {
     }
 
     this.dataLoader = dataLoader;
-    this.data = this._loadData();
   }
 
   _loadData() {
@@ -68,7 +67,8 @@ class DataParser {
     return dataset;
   }
 
-  parse() {
+  async parse() {
+    this.data = await this._loadData();
     const headers = this._extractHeaders();
 
     // my first thought is to return just a list of row fields
