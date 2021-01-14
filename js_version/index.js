@@ -1,6 +1,11 @@
 const MemoryDataLoader = require('./src/dataloader/MemoryDataLoader');
+const DataParser = require('./src/dataparser/DataParser');
+const hierarchicalSort = require('./src/hierarchicalSort');
 
-console.log("let's begin");
+const dataLoader = new MemoryDataLoader();
+const dataParser = new DataParser(dataLoader);
+
+hierarchicalSort(dataParser.parse());
 
 // TODO notes
 
@@ -11,10 +16,6 @@ console.log("let's begin");
 // 3 test memory usage and execution time (42tech loads huge data files probably)
 // should delimiter be configurable?
 
-// what about parsing
-// 1 first: assume that are 2 props only
-// 2 how to parse (string comparison for headers? regex?) - test with 200 headers (probably it doesnt matter)
-// 3 what data structure?
 
 // !!! sort function
 // 1 first: code simplest thing with hardcoded net_sales metric used in sorting

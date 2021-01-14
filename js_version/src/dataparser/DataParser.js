@@ -47,13 +47,32 @@ class DataParser {
     };
   }
 
+  _extractData(headers) {
+    const dataset = this.data.map((row) => {
+      let rowData = this._splitDataRow(row);
+      let propertiesData = rowData.splice(0, headers.properties.length);
+
+      // TODO: split into separate functions to simplify code
+      return {
+        properties: headers.properties.map((property, idx) => {
+          let item = {};
+          item[property] = propertiesData[idx];
+          return item;
+        }),
+        metrics: headers.metrics.reduce((r, metrics, idx) => {
+          r[metrics] = rowData[idx];
+          return r;
+        }, {})
+      };
+    });
+    return dataset;
+  }
+
   parse() {
     const headers = this._extractHeaders();
 
     // my first thought is to return just a list of row fields
-    const dataset = this.data.map((row) => {
-      return this._splitDataRow(row);
-    });
+    const dataset = this._extractData(headers);
 
     return {
       headers,

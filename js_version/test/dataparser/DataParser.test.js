@@ -82,20 +82,63 @@ describe('DataParser', () => {
       ];
 
       const expected = {
-        headers: {
-          properties: [ 'property0', 'property1' ],
-          metrics: [ 'net_sales' ]
+        "headers": {
+          "properties": ["property0", "property1"],
+          "metrics": ["net_sales"]
         },
-        dataset: [
-          ['bar', '$total', '-200'],
-          ['foo', 'sauce', '300'],
-          ['$total', '$total', '200'],
-          ['bar', 'sup', '-400'],
-          ['foo', '$total', '400'],
-          ['bar', 'bro', '200'],
-          ['foo', 'bacon', '100']
+        "dataset": [
+          {
+            "properties": [
+              {"property0": "bar"},
+              {"property1": "$total"}
+            ],
+            "metrics": {"net_sales": "-200"}
+          },
+          {
+            "properties": [
+              {"property0": "foo"},
+              {"property1": "sauce"}
+            ],
+            "metrics": {"net_sales": "300"}
+          },
+          {
+            "properties": [
+              {"property0": "$total"},
+              {"property1": "$total"}
+            ],
+            "metrics": {"net_sales": "200"}
+          },
+          {
+            "properties": [
+              {"property0": "bar"},
+              {"property1": "sup"}
+            ],
+            "metrics": {"net_sales": "-400"}
+          },
+          {
+            "properties": [
+              {"property0": "foo"},
+              {"property1": "$total"}
+            ],
+            "metrics": {"net_sales": "400"}
+          },
+          {
+            "properties": [
+              {"property0": "bar"},
+              {"property1": "bro"}
+            ],
+            "metrics": {"net_sales": "200"}
+          },
+          {
+            "properties": [
+              {"property0": "foo"},
+              {"property1": "bacon"}
+            ],
+            "metrics": {"net_sales": "100"}
+          }
         ]
       };
+
       const given = dataParser.parse();
       expect(given).deep.to.equal(expected);
     });
