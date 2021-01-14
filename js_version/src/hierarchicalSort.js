@@ -2,7 +2,7 @@ const Tree = require('./tree');
 
 var sortMetrics;
 
-const SORT_METRICS = 'net_sales';
+const DEFAULT_SORT_METRICS = 'net_sales';
 const TOTAL_SYMBOL = '$total';
 
 // TODO I dont like it, simple function but complicated due to dataset properties structure
@@ -17,7 +17,7 @@ function countTotalFields(propertiesNames, item) {
 
 const compareNodes = (nodeA, nodeB) => {
   let propertyName = nodeA.getDeepestPropertyName();
-  let metricsNameToSortBy = sortMetrics[propertyName] || SORT_METRICS;
+  let metricsNameToSortBy = sortMetrics[propertyName] || DEFAULT_SORT_METRICS;
 
   let nodeAValue = nodeA.value.metrics[metricsNameToSortBy];
   let nodeBValue = nodeB.value.metrics[metricsNameToSortBy];
@@ -27,7 +27,7 @@ const compareNodes = (nodeA, nodeB) => {
   if (nodeAValue == nodeBValue) return 0;
 }
 
-// TODO delimiter should not be here.. and this function too ;)
+// TODO delimiter should not be defined here.. and this function too ;)
 const printNode = (node, headers) => {
   let propertiesString = node.value.properties.map((item) => {
     return item[Object.keys(item)[0]];
@@ -49,8 +49,8 @@ const sortAndPrint = (node, headers) => {
   }
 };
 
-const printHeader = (data) => {
-  console.log(data.headers.properties.join('|') + '|' + data.headers.metrics.join('|'))
+const printHeader = (headers) => {
+  console.log(headers.properties.join('|') + '|' + headers.metrics.join('|'))
 };
 
 function hierarchicalSort(data, sortMetricsConfig) {
@@ -59,7 +59,7 @@ function hierarchicalSort(data, sortMetricsConfig) {
   const tree = new Tree(data, countTotalFields);
   let root = tree.build();
 
-  printHeader(data);
+  printHeader(data.headers);
   sortAndPrint(root, data.headers);
 };
 
