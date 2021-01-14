@@ -1,4 +1,7 @@
 class DataParser {
+  ROW_DELIMITER = '|';
+  PROPERTY_PATTERN = /property\d/;
+
   constructor(dataLoader) {
     if (!dataLoader) {
       throw new Error('DataLoader instance should be passed');
@@ -12,11 +15,50 @@ class DataParser {
     return this.dataLoader.getData();
   }
 
+  _splitDataRow(row) {
+    return row.split(this.ROW_DELIMITER);
+  }
+
+  _extractHeaders() {
+    let fields = this._splitDataRow(this.data[0]);
+    let properties = [];
+    let metrics = [];
+
+    let merticsHeaderFound = false;
+
+    for (let field of fields) {
+      if (this.PROPERTY_PATTERN.test(field)) {
+        if (merticsHeaderFound) {
+          throw new Error('Wrong data format: all properties should be placed in a row before metrics!');
+        }
+
+        properties.push(field);
+      } else {
+        merticsHeaderFound = true;
+        metrics.push(field);
+      }
+    }
+
+    this.data.shift(); // remove headers from dataset
+
+    return {
+      properties,
+      metrics
+    };
+  }
+
   parse() {
-    // TODO
-    // read first line and get headers
-    // read next lines and append data to some structure
-    // look for special symbols like '$total'
+    const headers = this._extractHeaders();
+
+    // my first thought is to return just a list of row fields
+    const dataset = this.data.map((row) => {
+      return this._splitDataRow(row);
+    });
+
+    return {
+      headers,
+      dataset
+    };
 
     // TODO later
     // what about special cases?
