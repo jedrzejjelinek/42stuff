@@ -1,4 +1,4 @@
-const buildTree = require('./tree');
+const Tree = require('./tree');
 
 var sortMetrics;
 
@@ -53,7 +53,8 @@ const sortAndPrint = (node) => {
 function hierarchicalSort(data, sortMetricsConfig) {
   sortMetrics = sortMetricsConfig || {};
 
-  let root = buildTree(data, countTotalFields);
+  const tree = new Tree(data, countTotalFields);
+  let root = tree.build();
   sortAndPrint(root);
 };
 

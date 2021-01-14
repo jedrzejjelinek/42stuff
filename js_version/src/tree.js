@@ -1,5 +1,3 @@
-var propertyLevelStruct;
-
 class Node {
   constructor(value) {
     this.value = value; // TODO change that later, don't know the format now
@@ -23,95 +21,109 @@ class Node {
   }
 }
 
-
-
-function findNodeChildren(level, node) {
-  let children = [];
-  let childrenLevel = level + 1;
-
-  if (level === 0) {
-    return propertyLevelStruct[childrenLevel];
+class Tree {
+  constructor(data, countLevelFunc) {
+    this.data = data;
+    this._countLevelFunc = countLevelFunc;
+    this._preparePropertyLevelStruct();
   }
 
-  if (childrenLevel >= propertyLevelStruct.length) {
+  _preparePropertyLevelStruct() {
+    // TODO this structure should be a class, but it's not so important right now
+    this._propertyLevelStruct = this.data.headers.properties.map(() => {return [];});
+    this._propertyLevelStruct.push([]); // add one for the root
+  }
+
+  _findNodeChildren(level, node) {
+    let children = [];
+    let childrenLevel = level + 1;
+
+    if (level === 0) {
+      return this._propertyLevelStruct[childrenLevel];
+    }
+
+    if (childrenLevel >= this._propertyLevelStruct.length) {
+      return children;
+    }
+
+
+    for (let item of this._propertyLevelStruct[childrenLevel]) {
+      // child item is when:
+      // - has corresponding properties (first 'level' properties)
+      let isChild = true;
+      for (let i = 0; i < level; i++) {
+        if (JSON.stringify(node.value.properties[i]) != JSON.stringify(item.value.properties[i])) { // TODO hmm structure is still pain in the ass...
+          isChild = false;
+          break;
+        }
+      }
+
+      if (isChild) {
+        children.push(item);
+      }
+    }
+
     return children;
   }
 
+  _findNodeParent(level, node) {
+    let parentLevel = level - 1;
+    for (let item of this._propertyLevelStruct[parentLevel]) {
+      if (parentLevel === 0) {
+        return item; // root
+      }
 
-  for (item of propertyLevelStruct[childrenLevel]) {
-    // child item is when:
-    // - has corresponding properties (first 'level' properties)
-    let isChild = true;
-    for (let i = 0; i < level; i++) {
-      if (JSON.stringify(node.value.properties[i]) != JSON.stringify(item.value.properties[i])) { // TODO hmm structure is still pain in the ass...
-        isChild = false;
-        break;
+      // parent item is when:
+      // - has corresponding properties (first 'parentlevel' properties)
+      let isParent = true;
+      for (let i = 0; i < parentLevel; i++) {
+        if (JSON.stringify(node.value.properties[i]) != JSON.stringify(item.value.properties[i])) { // TODO hmm structure is still pain in the ass...
+          isParent = false;
+          break;
+        }
+      }
+
+      if (isParent) {
+        return item;
       }
     }
 
-    if (isChild) {
-      children.push(item);
+    return null;
+  }
+
+  getRoot() {
+    try {
+      return this._propertyLevelStruct[0][0];
+    } catch(e) {
+      return null;
     }
   }
 
-  return children;
-}
+  build() {
+    let data = this.data;
+    for (let item of data.dataset) {
+      let level = this._countLevelFunc(data.headers.properties, item);
+      let node = new Node(item);
 
-function findNodeParent(level, node) {
-  let parentLevel = level - 1;
-  for (item of propertyLevelStruct[parentLevel]) {
-    if (parentLevel === 0) {
-      return item; // root
-    }
+      this._propertyLevelStruct[level].push(node);
 
-    // parent item is when:
-    // - has corresponding properties (first 'parentlevel' properties)
-    let isParent = true;
-    for (let i = 0; i < parentLevel; i++) {
-      if (JSON.stringify(node.value.properties[i]) != JSON.stringify(item.value.properties[i])) { // TODO hmm structure is still pain in the ass...
-        isParent = false;
-        break;
+      // find parent to fill the structure
+      if (level > 0) {
+        let parent = this._findNodeParent(level, node);
+        if (parent) {
+          node.setParent(parent);
+        }
       }
+
+      // find children to fill the structure
+      let children = this._findNodeChildren(level, node);
+      children.forEach((child) => {
+        child.setParent(node);
+      });
     }
 
-    if (isParent) {
-      return item;
-    }
+    return this.getRoot();
   }
-
-  return null;
-}
-
-const preparePropertyLevelStruct = (data) => {
-  propertyLevelStruct = data.headers.properties.map(() => {return [];});
-  propertyLevelStruct.push([]); // add one for the root
 };
 
-function buildTree(data, countLevelFunc) {
-  preparePropertyLevelStruct(data);
-
-  for (item of data.dataset) {
-    let level = countLevelFunc(data.headers.properties, item);
-    let node = new Node(item);
-
-    propertyLevelStruct[level].push(node);
-
-    // find parent to fill the structure
-    if (level > 0) {
-      let parent = findNodeParent(level, node);
-      if (parent) {
-        node.setParent(parent);
-      }
-    }
-
-    // find children to fill the structure
-    let children = findNodeChildren(level, node);
-    children.forEach((child) => {
-      child.setParent(node);
-    });
-  }
-
-  return propertyLevelStruct[0][0];
-}
-
-module.exports = buildTree;
+module.exports = Tree;
