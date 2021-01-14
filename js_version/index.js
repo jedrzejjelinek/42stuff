@@ -1,9 +1,12 @@
+const MemoryDataLoader = require('./src/dataloader/MemoryDataLoader');
+
 console.log("let's begin");
 
 // TODO notes
 
+
+
 // what about reading data: use attached examples
-// 1 first version: load from memory (add reading files later)
 // 2 add loading from file
 // 3 test memory usage and execution time (42tech loads huge data files probably)
 // should delimiter be configurable?

@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "mocha"
+    "test": "mocha --recursive"
   },
   "author": "Jedrzej Jelinek",
   "devDependencies": {
+    "chai": "^4.2.0",
     "mocha": "^8.2.1"
   }
 }
