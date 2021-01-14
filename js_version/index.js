@@ -1,7 +1,6 @@
 console.log("let's begin");
 
 // TODO notes
-// add karma, jasmine and stuff
 
 // what about reading data: use attached examples
 // 1 first version: load from memory (add reading files later)
